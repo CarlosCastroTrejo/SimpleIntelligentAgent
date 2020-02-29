@@ -1,9 +1,5 @@
-
-
-
- 
-                     
-player jugador;
+// Variables globales
+Agent agente;
 ArrayList<wall>walls=new ArrayList<wall>(); 
 int[][] world = {    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
                      {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
@@ -20,25 +16,23 @@ int[][] world = {    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
                      {1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
                      {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0}};
                      
-  int coordenadaJugadorY=3;
-  int coordenadaJugadorX=10;
- 
+int coordenadaJugadorY=3;
+int coordenadaJugadorX=10;
+  
+  
 void setup() {
- frameRate(4);
+  frameRate(4);
 
   size(900, 750);
   
   int col=16;
   int row=14;
   
-
-  
- 
- 
-  jugador = new player(coordenadaJugadorY*50,coordenadaJugadorX*50);
+  agente = new Agent(coordenadaJugadorY*50,coordenadaJugadorX*50);
   
   int x=0;
   int y=0;
+  
   for (int i = 0; i < row; i++){
     x=0;
     for (int j = 0; j < col; j++) {
@@ -58,24 +52,34 @@ void draw() {
   background(255, 255, 255); 
   noStroke(); 
  
-  jugador.draw();
-  jugador.move(walls);
+  agente.draw();
+  agente.move();
   
   for(int i = 0; i < walls.size(); i++){
     walls.get(i).draw();
-  }
- 
-  
+  }  
  
 }
  
-class player {
+class Agent {
  
   int numeroDeIteraciones;
   float x;
   float y;
+  
+  // Estados
+  int X0=0;
+  int X1=0;
+  int X2=0;
+  int X3=0;
+  int X4=0;
+    
+  int X5=0;
+  int X6=0;
+  int X7=0;
+  int X8=0;
  
-  player(float _x, float _y){
+  Agent(float _x, float _y){
     numeroDeIteraciones=0;
     x = _x;
     y = _y;
@@ -85,23 +89,8 @@ class player {
     fill(0,100,0);
     rect(x,y,50,50);
   }
- 
-  void move(ArrayList<wall> walls){
-    
-    numeroDeIteraciones+=1;
-    
-    int X0=0;
-    int X1=0;
-    int X2=0;
-    int X3=0;
-    int X4=0;
-    
-    int X5=0;
-    int X6=0;
-    int X7=0;
-    int X8=0;
-    
-    
+  
+  void modificacionDeEstados(){
     if(world[coordenadaJugadorX-1][coordenadaJugadorY]==1 && world[coordenadaJugadorX-1][coordenadaJugadorY+1]==1){
       X1=1;
     }
@@ -141,9 +130,11 @@ class player {
       X0=1;
     }
     
-    print(numeroDeIteraciones+" \n");
-    
-    // Este
+  }
+  
+  void tomaDecisionBasadoEnEstados(){
+ 
+    //Este
     if(X1==1 && X2==0){
       x+=50;
       coordenadaJugadorY+=1;
@@ -196,6 +187,19 @@ class player {
      x+=50;
      coordenadaJugadorY+=1;
     }
+    
+  }
+ 
+  void move(){
+    
+    numeroDeIteraciones+=1;
+    
+    modificacionDeEstados();
+    tomaDecisionBasadoEnEstados();
+    
+    print(numeroDeIteraciones+" \n");
+    
+    
     
   }
  
