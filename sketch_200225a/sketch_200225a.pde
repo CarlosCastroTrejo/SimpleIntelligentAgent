@@ -7,7 +7,7 @@ int[][] world = {    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
                      {1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0},
                      {1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0},
                      {1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1},
-                     {1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+                     {1, 2, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
                      {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
                      {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
                      {1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
@@ -16,28 +16,29 @@ int[][] world = {    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0},
                      {1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0},
                      {1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0}};
                      
-int coordenadaJugadorY=3;
-int coordenadaJugadorX=10;
-  
-  
+  int coordenadaJugadorY=1;
+  int coordenadaJugadorX=1;
+ 
 void setup() {
-  frameRate(4);
+ frameRate(4);
 
   size(900, 750);
   
   int col=16;
   int row=14;
-  
-  agente = new Agent(coordenadaJugadorY*50,coordenadaJugadorX*50);
+ 
+ 
+  agente= new Agent(coordenadaJugadorY*50,coordenadaJugadorX*50);
   
   int x=0;
   int y=0;
-  
   for (int i = 0; i < row; i++){
     x=0;
     for (int j = 0; j < col; j++) {
       if(world[i][j]==1){
-          walls.add( new wall(x,y));
+          walls.add( new wall(x,y,false));
+      }else if(world[i][j]==2){
+          walls.add( new wall(x,y,true));
       }
       x+=50;
     }
@@ -57,27 +58,33 @@ void draw() {
   
   for(int i = 0; i < walls.size(); i++){
     walls.get(i).draw();
-  }  
+  }
  
 }
  
 class Agent {
  
-  int numeroDeIteraciones;
+  //Propiedades del cuadrado
   float x;
   float y;
   
-  // Estados
-  int X0=0;
-  int X1=0;
-  int X2=0;
-  int X3=0;
-  int X4=0;
+  //Propiedades del agente
+  int numeroDeIteraciones;
+  boolean objetivoAlcanzado=false;
+
+  //Estados del agente
+   int X0=0;
+   int X1=0;
+   int X2=0;
+   int X3=0;
+   int X4=0;
     
-  int X5=0;
-  int X6=0;
-  int X7=0;
-  int X8=0;
+   int X5=0;
+   int X6=0;
+   int X7=0;
+   int X8=0;
+   
+   
  
   Agent(float _x, float _y){
     numeroDeIteraciones=0;
@@ -89,6 +96,20 @@ class Agent {
     fill(0,100,0);
     rect(x,y,50,50);
   }
+  
+  void reinicioDeEstados(){
+    X0=0;
+    X1=0;
+    X2=0;
+    X3=0;
+    X4=0;
+    
+    X5=0;
+    X6=0;
+    X7=0;
+    X8=0;
+  }
+  
   
   void modificacionDeEstados(){
     if(world[coordenadaJugadorX-1][coordenadaJugadorY]==1 && world[coordenadaJugadorX-1][coordenadaJugadorY+1]==1){
@@ -133,8 +154,7 @@ class Agent {
   }
   
   void tomaDecisionBasadoEnEstados(){
- 
-    //Este
+     // Este
     if(X1==1 && X2==0){
       x+=50;
       coordenadaJugadorY+=1;
@@ -187,22 +207,24 @@ class Agent {
      x+=50;
      coordenadaJugadorY+=1;
     }
-    
   }
  
   void move(){
-    
-    numeroDeIteraciones+=1;
-    
-    modificacionDeEstados();
-    tomaDecisionBasadoEnEstados();
-    
-    print(numeroDeIteraciones+" \n");
-    
-    
-    
+    if(objetivoAlcanzado==false){
+      numeroDeIteraciones+=1;
+      
+      reinicioDeEstados();
+      
+      modificacionDeEstados();
+      
+      tomaDecisionBasadoEnEstados();
+      
+      print(numeroDeIteraciones+" \n");
+      if(world[coordenadaJugadorX][coordenadaJugadorY]==2){
+        objetivoAlcanzado=true;
+      }
+    }
   }
- 
 }
  
 class wall {
@@ -211,17 +233,24 @@ class wall {
   float y;
   float w;
   float h;
+  boolean objective;
  
-  wall(float _x, float _y){
+  wall(float _x, float _y,boolean _objective){
     x = _x;
     y = _y;
     w = 50;
     h = 50;
+    objective=_objective;
   }
  
   void draw(){
-    fill(139,0,0);
-    rect(x,y,w,h);
+    if(objective){
+      fill(255,255,153);
+      rect(x,y,w,h);
+    }else{
+      fill(139,0,0);
+      rect(x,y,w,h);
+    }
   }
  
 }
